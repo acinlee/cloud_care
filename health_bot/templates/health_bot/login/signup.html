@@ -1,0 +1,124 @@
+{% load static %}
+<html>
+<!--bootstrap-->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--나눔고딕-->
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+<head>
+<!--알람메시지-->
+{% if messages %}
+    {% for message in messages %} 
+        <script>alert("{{message}}");</script>
+    {% endfor %}
+{% endif %}
+<!--알람 끝-->
+    <style>
+        body{
+            font-family: 'NanumSquare', sans-serif;
+            margin:0px;
+            padding:0px;
+            width:100%;
+            height:100vh;
+            font-size:2vh;
+        }
+        form{
+            width:100%;
+        }
+        .signup_title{
+            text-align:center;
+            font-size:5vh;
+        }
+        .back_btn{
+            padding-top:5%;
+            padding-left:5%;
+        }
+        .back_btn a{
+            font-size:4vh;
+            padding-left:3%;
+        }
+        input{
+            border:none;
+            background-color:#d3d3d3;
+        }
+        .signup_form_design{
+            background-color:#d3d3d3;
+            width:90%;
+            margin-left:5%;
+            padding-top:3%;
+            padding-bottom:3%;
+            border-radius:15px 15px 15px 15px;
+            margin-bottom:5%;
+        }
+        .email_form_design{
+            background-color:#d3d3d3;
+            width:90%;
+            margin-left:5%;
+            padding-top:3%;
+            padding-bottom:3%;
+            border-radius:15px 15px 15px 15px;
+            margin-bottom:5%;
+        }
+        span{
+            padding-left:3%;
+        }
+        input[type=password]{
+            font-family:none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="back_btn">
+                <a href="{% url 'health_bot:login_view' %}" style="text-decoration: none; color:rgb(21,21,21); cursor:pointer;"><</a>
+            </div>
+            <form action="{% url 'health_bot:signup' %}" method="POST">
+            {% csrf_token %}
+            <div class="signup_title">회원가입</div>
+            <div style="font-size:2vh; margin-top:5%; margin-bottom:5%; padding-left:5%;">회원정보 입력</div>
+            <div class="email_form_design">
+                <span>이메일</span><input type="text" name="user_email" style="width:60%; margin-left:15%;" placeholder="이메일 주소 입력" maxlength="30">  
+            </div>
+            <div class="signup_form_design">    
+                <span>비밀번호</span><input type="password" name="user_pw" style="width:60%; margin-left:11.5%;" placeholder="영문, 숫자를 포함한 8자 이상">
+            </div>
+            <div class="signup_form_design">
+                <span>비밀번호 확인</span><input type="password" name="user_pw_ok" style="width:60%; margin-left:3%;">
+            </div>
+            <div class="signup_form_design">
+                <span>이름</span><input type="text" name="user_name" style="width:60%; margin-left:20%;">
+            </div>
+            <div class="signup_form_design">
+                <span>나이</span><input type="text" name="user_age" numberOnly style="width:60%; margin-left:20%;" placeholder="만 나이 입력">
+            </div>
+            <div class="signup_form_design row">
+                <div class="col-sm-2" style="width:30%;">성별</div>
+
+                <div class="custom-control custom-radio col-sm-5" style="width:30%;">
+                    <input type="radio" class="custom-control-input" id="man" value="1" name="user_gender" checked>
+                    <label class="custom-control-label" for="man">남</label>
+                </div>
+
+                <div class="custom-control custom-radio col-sm-5" style="width:30%;">
+                    <input type="radio" class="custom-control-input" id="woman" value="0" name="user_gender">
+                    <label class="custom-control-label" for="woman">여</label>
+                </div>
+            </div>
+            <div>
+                <input type="submit" class="btn btn-info" style="width:90%; height:6vh; font-size:2.6vh; margin-left:5%;" value="가입하기"></button>
+            </div>
+            </form>
+        </div>
+    </div>
+</body>
+<script>
+    $("input:text[numberOnly]").on("keyup", function() {
+        $(this).val($(this).val().replace(/[^0-9.]/g,""));
+    });
+</script>
+</html>

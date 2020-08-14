@@ -1,0 +1,375 @@
+{% load static %}
+<html>
+<!--bootstrap-->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--나눔고딕-->
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+<head>
+<!--알람메시지-->
+{% comment %} {% if messages %}
+    {% for message in messages %} 
+        <script>alert("{{message}}");</script>
+    {% endfor %}
+{% endif %} {% endcomment %}
+<!--알람 끝-->
+    <style>
+        body{
+            font-family: 'NanumSquare', sans-serif;
+            margin:0px;
+            padding:0px;
+            width:100%;
+            height:100vh;
+            font-size:2vh;
+        }
+        .medicine_title{
+            width:100vw;
+            text-align:center;
+            font-size:5vh;
+            font-weight:600;
+        }
+        .home_btn{
+            position:absolute;
+            margin-left:3%;
+            padding-top:1%;
+            width:10%;
+        }
+        .medicine_name{
+            margin-left:4%;
+            margin-bottom:3%;
+            font-size:3.2vh;
+            font-weight:600;
+        }
+        .medicine_img_title{
+            margin-left:4%;
+            font-size:2.5vh;
+            font-weight:600;
+        }
+        .medicine_img{
+            margin-left:4%;
+            margin-bottom:10%;
+        }
+        .hr1{
+            width:100vw;
+            height:1.5vh;
+            background:#C8C8C8;
+            margin-bottom: 3%;
+        }
+        .hr2{
+            width:100%;
+            height:0.1vh;
+            background:#000000;
+        }
+        .hr3{
+            width:100vw;
+            height:2vh;
+            background:#FFFFFF;
+        }
+        .throw{
+            width:50%;
+        }
+        .ef_min_title{
+            font-size:2.5vh;
+            font-weight:600;
+        }
+        .pr_min_title{
+            font-size:2.5vh;
+            font-weight:600;
+        }
+        .ov_min_title{
+            font-size:2.5vh;
+            font-weight:600;
+        }
+        .footer{
+            position: fixed;
+            background-color: #C8C8C8;
+            text-align:center;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 10vh;
+        }
+        .prescription{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:10vw;
+        }
+        .camera_btn{
+            border-radius: 40px 40px 40px 40px;
+            background-color:#383838;
+        }
+        .camera{
+            margin-top:1.5vh;
+            height:6vh;
+            width:10vw;
+        }
+        .person{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:8vw;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="medicine_title">
+                의약품 상세 설명<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='{% url 'health_bot:main_page' %}'">
+            </div>
+            <div class="hr1"></div>
+            <div class="medicine_name">
+                {{medicine.item_name}}
+            </div>
+            <div class="hr2"></div>
+            <div class="row hello" style="margin:0; padding:0; width: 100%; font-size:2.4vh; font-weight:600; margin-top:2%; margin-bottom:4%;">
+                <div class"col-3" id="explanation" style="margin-left:3%; color:#DD4124; border-bottom:3px solid #DD4124;">
+                    설명
+                </div>
+                <div class"col-3" id="dur_infomation" style="margin-left:3%;"> 
+                    의약품 안전성 정보
+                </div>
+            </div>
+            <!--약품 설명-->
+            <div id="explan_md" style="margin:0; padding:0; width: 100%; background:#eeeeee;">
+                <table class="table">
+                <tbody>
+                    <tr>
+                    <th scope="row">품목일련번호</th>
+                    <td>{{medicine.item_seq}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">품목명</th>
+                    <td>{{medicine.item_name}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">업체일련번호</th>
+                    <td>{{medicine.entp_seb}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">업체명</th>
+                    <td>{{medicine.entp_name}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">성상</th>
+                    <td>{{medicine.chart}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">표시(앞)</th>
+                    <td>{{medicine.print_pront}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">표시(뒤)</th>
+                    <td>{{medicine.print_back}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">의약품 모양</th>
+                    <td>{{medicine.drug_shape}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">색깔(앞)</th>
+                    <td>{{medicine.color_front}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">색깔(뒤)</th>
+                    <td>{{medicine.color_back}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">분할선(앞)</th>
+                    <td>{{medicine.line_front}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">분할선(뒤)</th>
+                    <td>{{medicine.line_back}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">크기(장축)</th>
+                    <td>{{medicine.leng_long}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">크기(단축)</th>
+                    <td>{{medicine.leng_short}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">크기(두께)</th>
+                    <td>{{medicine.thick}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">분류번호</th>
+                    <td>{{medicine.class_no}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">분류명</th>
+                    <td>{{medicine.class_name}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">품목허가일자</th>
+                    <td>{{year}}년 {{month}}월 {{day}}일</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">체형 코드 이름</th>
+                    <td>{{medicine.form_code_name}}</td>
+                    </tr>
+                    <tr>
+                    <th scope="row">보험 코드</th>
+                    <td>{{medicine.edi_code}}</td>
+                    </tr>
+                </tbody>
+                </table>
+                <div class="medicine_img_title">
+                    제품 이미지
+                </div>
+                <div class="medicine_img">
+                    <img src="{{medicine.item_image}}" style="width:90vw;">
+                </div>
+            </div>
+
+            <!--의약품 안전성 정보-->
+            {% if medicine.openoverban.id %}
+            <div id="overban" style="margin:0; padding:0; width: 100%; margin-bottom:4%; background:#eeeeee; display:none;">
+                <div class="ov_min_title">병용금기</div>
+                <table class="table">
+                <tbody>
+                    <tr>
+                    <th class="throw" scope="row">병용금기 DUR 성분<br>코드</th>
+                    <td>{{medicine.openoverban.mixture_ingr_code}}</td>
+                    </tr>
+                    <tr>
+                    <th class="throw" scope="row">병용금기 DUR 성분명</th>
+                    <td>{{medicine.openoverban.mixture_ingr_kor_name}}</td>
+                    </tr>
+                    <tr>
+                    <th class="throw" scope="row">병용금기 DUR 성분 <br>영어명</th>
+                    <td>{{medicine.openoverban.mixture_ingr_eng_name}}</td>
+                    </tr>
+                    <tr>
+                    <th class="throw" scope="row">병용금기 DUR 품목 <br>기준코드</th>
+                    <td>{{medicine.openoverban.mixture_item_seq}}</td>
+                    </tr>
+                    <tr>
+                    <th class="throw" scope="row">병용금기 DUR 품목명</th>
+                    <td>{{medicine.openoverban.mixture_item_name}}</td>
+                    </tr>
+                    <tr>
+                    <th class="throw" scope="row">병용금기 약효분류</th>
+                    <td>{{medicine.openoverban.mixture_class_name}}</td>
+                    </tr>
+                    <tr>
+                    <th class="throw" scope="row">금기 내용</th>
+                    <td>{{medicine.openoverban.prohbt_content}}</td>
+                    </tr>                      
+                </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div id="overban" style="margin:0; padding:0; width: 100%; margin-bottom:4%; background:#eeeeee; display:none;">
+                <div class="ov_min_title">병용금기</div>
+                <table class="table">
+                <tbody>
+                    <tr>
+                    <th class="throw" scope="row">병용금기 여부</th>
+                    <td>해당없음</td>
+                    </tr>                  
+                </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% if medicine.openpregnatban.id %}
+            <div id="pregnatban" style="margin:0; padding:0; width: 100%; background:#eeeeee; margin-bottom:4%; display:none;">
+                <div class="pr_min_title">임부금기</div>
+                <table class="table">
+                <tbody>
+                    <tr>
+                    <th class="throw" scope="row">임부금기 등급</th>
+                    <td>{{medicine.openpregnatban.grade}}</td>
+                    </tr>                   
+                </tbody>
+                </table>
+                <div style="font-size:2.4vh; font-weight:600; margin-left:3%;">
+                    금기 내용
+                </div>
+                <div style="font-size:2.4vh; margin-left:3%;">
+                    {{medicine.openpregnatban.prohbt_content}}
+                </div>                
+            </div>
+            {% else %}
+            <div id="pregnatban" style="margin:0; padding:0; width: 100%; background:#eeeeee; margin-bottom:4%;display:none;">
+                <div class="pr_min_title">임부금기</div>
+                <table class="table">
+                <tbody>
+                    <tr>
+                    <th class="throw" scope="row">임부금기 여부</th>
+                    <td>해당없음</td>
+                    </tr>                   
+                </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <div id="efficacygroupoverlap" style="margin:0; padding:0; width: 100%; margin-bottom:4%; background:#eeeeee;display:none;">
+                <div class="ef_min_title">효능군 중복</div>
+                <table class="table">
+                <tbody>
+                    <tr>
+                    <th class="throw" scope="row">효능군 중복 여부</th>
+                    {% if medicine.openefficacygroupoverlap.id %}
+                    <td>O</td>
+                    {% else %}
+                    <td>X</td>
+                    {% endif %}
+                    </tr>                  
+                </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<script>
+    $("#explanation").click(function(){
+        console.log('hello병용');
+        var explan_btn=$("#explanation"); //설명 버튼
+        var dur_infomation_btn=$("#dur_infomation"); //dur 버튼
+        var explan_display=$("#explan_md"); //설명 테이블
+        var overban_display=$("#overban"); //병용금기 테이블
+        var pregnat_display=$("#pregnatban"); //임부금기 테이블
+        var efficacy_display=$("#efficacygroupoverlap"); //효능군 중복 테이블
+
+        explan_display.css("display", "block");
+        overban_display.css("display","none");
+        pregnat_display.css("display","none");
+        efficacy_display.css("display","none");
+
+        explan_btn.css("color","#DD4124");
+        explan_btn.css("border-bottom","3px solid #DD4124");
+        dur_infomation_btn.css("color","#000000");
+        dur_infomation_btn.css("border","0");
+    });
+
+    $("#dur_infomation").click(function(){
+        console.log('hello금기');
+        var explan_btn=$("#explanation"); //설명 버튼
+        var dur_infomation_btn=$("#dur_infomation"); //dur 버튼
+        var explan_display=$("#explan_md"); //설명 테이블
+        var overban_display=$("#overban"); //병용금기 테이블
+        var pregnat_display=$("#pregnatban"); //임부금기 테이블
+        var efficacy_display=$("#efficacygroupoverlap"); //효능군 중복 테이블
+
+        explan_display.css("display", "none");
+        overban_display.css("display","block");
+        pregnat_display.css("display","block");
+        efficacy_display.css("display","block");
+
+        explan_btn.css("color","#000000");
+        explan_btn.css("border","0");
+
+        dur_infomation_btn.css("color","#DD4124");
+        dur_infomation_btn.css("border-bottom","3px solid #DD4124");
+    });
+</script> 
+</body>
+</html>

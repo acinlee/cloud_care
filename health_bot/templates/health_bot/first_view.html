@@ -1,0 +1,19 @@
+{% load static %}
+<meta http-equiv="refresh" content="3;url={% url 'health_bot:login'%}">
+<style>
+    body{
+        margin:0px;
+        padding:0px;
+        width:100%;
+        height:100vh;
+        background-color:#66a3ff;
+    }
+    .container-fluid{
+        margin-top:40%;
+    }
+</style>
+<body>
+    <div class="container-fluid">
+        <img style="width:100%;" src="{% static 'health_bot/img/carebot_logo.png'%}">
+    </div>
+</body>

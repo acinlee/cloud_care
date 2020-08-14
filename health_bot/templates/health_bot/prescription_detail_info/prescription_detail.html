@@ -1,0 +1,304 @@
+{% load static %}
+<html>
+<!--bootstrap-->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--나눔고딕-->
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+<head>
+<!--알람메시지-->
+{% comment %} {% if messages %}
+    {% for message in messages %} 
+        <script>alert("{{message}}");</script>
+    {% endfor %}
+{% endif %} {% endcomment %}
+<!--알람 끝-->
+    <style>
+        body{
+            font-family: 'NanumSquare', sans-serif;
+            margin:0px;
+            padding:0px;
+            width:100%;
+            height:100vh;
+            font-size:2vh;      
+        }
+        a:link { color: black; text-decoration: none;}
+        a:visited { color: black; text-decoration: none;}
+        a:hover { color: black; text-decoration: none;}
+        .mypage_title{
+            width:100vw;
+            text-align:center;
+            font-size:5vh;
+            font-weight:600;
+        }
+        .home_btn{
+            position:absolute;
+            margin-left:3%;
+            padding-top:1%;
+            width:10%;
+        }
+        .warning{
+            width:3vh;
+        }
+        .arrow{
+            margin-left:8%;
+            width:3vh;
+        }
+        .hr1{
+            width:100vw;
+            height:1.5vh;
+            background:#C8C8C8;
+            margin-bottom: 3%;
+        }
+        .hr2{
+            width:90%;
+            height:0.1vh;
+            background:#000000;
+            margin-top:2%;
+            margin-bottom:5%;
+        }
+        .hr3{
+            width:100vw;
+            height:2vh;
+            background:#FFFFFF;
+        }
+        .drug{
+            width:12vw;
+            height:7vh;
+            margin-top:30%;
+            margin-left: 5%;
+        }
+        .footer{
+            position: fixed;
+            background-color: #C8C8C8;
+            text-align:center;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 10vh;
+        }
+        .prescription{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:10vw;
+        }
+        .camera_btn{
+            border-radius: 40px 40px 40px 40px;
+            background-color:#383838;
+        }
+        .camera{
+            margin-top:1.5vh;
+            height:6vh;
+            width:10vw;
+        }
+        .person{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:8vw;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="mypage_title">
+                처방전 정보<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='{% url 'health_bot:main_page' %}'">
+                <div style="font-size:2vh;">
+                    {{prescription.prescription_date|date:"Y년 m월 d일"}}
+                </div>
+            </div>
+            <div class="hr1"></div>
+            <div style="width:100%;">
+                <div style="font-size:3vh; font-weight:600; margin-bottom:2%;">
+                    질병
+                </div>
+                <a href=#none id="show" style="margin-left:3%; font-size: 4.2vw;" onclick="if(hide.style.display=='none') {hide.style.display='';show.innerText='▲접기'} else {hide.style.display='none';show.innerText='▶질병 정보 확인'}">▶질병 정보 확인</a>
+                <div class="row" id="hide" style="display: none; margin:0; padding:0; width: 100%; background:#eeeeee; margin-bottom:3%;">
+                    <div class="col-2">
+                        <img class="drug" src="{% static 'health_bot/img/disease.png'%}">
+                    </div>
+                    <div class="col-10">
+                        <div style="margin-top:2%; margin-bottom:1%;font-size: 2.5vh; font-weight: 600;">질병 이름 : {{disease.disease_name}}</div>
+                        <div>질병 코드 : {{disease.disease_code}}</div>
+                    </div>
+                </div>
+                <!-- <div style="font-size:3vh; font-weight:600; margin-bottom:2%;">
+                    병원
+                </div>
+                <a href=#none id="show2" style="margin-left:3%;font-size: 4.2vw;" onclick="if(hide2.style.display=='none') {hide2.style.display='';show2.innerText='▲접기'} else {hide2.style.display='none';show2.innerText='▶병원 정보 확인'}">▶병원 정보 확인</a>
+                <div class="row" id="hide2" style="display: none; margin:0; padding:0; width: 100%; background:#eeeeee; margin-bottom:3%;">
+                    <div class="col-2">
+                        <img class="drug" src="{% static 'health_bot/img/disease.png'%}">
+                    </div>
+                    <div class="col-10">
+                        <div style="margin-top:2%; margin-bottom:1%;font-size: 2.5vh; font-weight: 600;">병원 이름 : {{disease.disease_name}}</div>
+                    </div>
+                </div> -->
+                <div style="font-size:3vh; font-weight:600; margin-bottom:2%;">
+                    의약품
+                </div>
+                <a href=#none id="show3" style="margin-left:3%; font-size: 4.2vw;" onclick="if(hide3.style.display=='none') {hide3.style.display='';show3.innerText='▲접기'} else {hide3.style.display='none';show3.innerText='▶의약품 정보 확인'}">▶의약품 정보 확인</a>
+                <div id="hide3" style="width: 100%; display: none;">
+                {% for medicine_object in medicine%}
+                    <div class="row" style=" margin:0; padding:0; width: 100%; background:#eeeeee;" onclick="location.href='{% url 'health_bot:medicine_info' medicine_object.id %}'">
+                        <div class="col-2">
+                            <img class="drug" src="{% static 'health_bot/img/drug.png'%}">
+                        </div>
+                        <div class="col-10">
+                            <div style="margin-top:2%; margin-bottom:1%;font-size: 2.5vh; font-weight: 600;">{{medicine_object.item_name}}</div>
+                            <div>의약품 코드 : {{medicine_object.edi_code}}</div>
+                        </div> 
+                    </div>
+                    {% if medicine_object.openoverban.over_medicine.id or medicine_object.openpregnatban.pregnat_medicine.id or medicine_object.openefficacygroupoverlap.efficacy_medicine.id %}
+                        <div class="row" id="warning_info{{forloop.counter}}" style="margin:0; padding:0; width: 100%; padding-top:2%;background:#eeeeee;">
+                            <div style="width:85vw; height:5vh; padding-left:5%; margin-left:7%; font-size:3vh; color:#DD4124; border:2px solid #DD4124; border-radius:10px 10px 10px 10px">
+                                <img class="warning" src="{% static 'health_bot/img/warning.png' %}">  의약품 주의 사항 확인 <img class="arrow pk" pk="{{forloop.counter}}" src="{% static 'health_bot/img/arrowdown.png' %}">
+                            </div>
+                        </div> 
+                        <div id="dur_info{{forloop.counter}}" style="margin:0; padding:0; width: 100%; background:#eeeeee; padding-top:2%; display:none;">
+                            <div style="width:85vw; padding-left:5%; margin-left:7%; font-size:3vh; color:#DD4124; border:2px solid #DD4124; border-radius:10px 10px 10px 10px">
+                                <img class="warning" src="{% static 'health_bot/img/warning.png' %}">  의약품 주의 사항 확인 <img class="arrow pk" pk="{{forloop.counter}}" src="{% static 'health_bot/img/arrowup.png' %}">
+                                <div class="hr2"></div>
+                                <div class="row" style="width:100%; margin-left:2%;">
+                                    {% if medicine_object.openoverban.over_medicine.id %}
+                                        <div class="col-5 info_pk" pk="{{forloop.counter}}" id="overlap_btn{{forloop.counter}}" style="font-size:2.4vh; margin-left:2%; margin-bottom:2%; text-align:center; border:2px solid #DD4124; border-radius:20px 20px 20px 20px">
+                                            병용금기
+                                        </div>
+                                    {% endif %}
+                                    {% if medicine_object.openpregnatban.pregnat_medicine.id %}
+                                        <div class="col-5 info_pk" pk="{{forloop.counter}}" id="pregnat_btn{{forloop.counter}}" style="font-size:2.4vh; margin-left:2%; margin-bottom:2%; text-align:center; border:2px solid #DD4124; border-radius:20px 20px 20px 20px">
+                                            임부금기
+                                        </div>
+                                    {% endif %}
+                                    {% if medicine_object.openefficacygroupoverlap.efficacy_medicine.id %}
+                                        <div class="col-5 info_pk" pk="{{forloop.counter}}" id="efficacy_btn{{forloop.counter}}" style="font-size:2.4vh; margin-left:2%; margin-bottom:2%; text-align:center; border:2px solid #DD4124; border-radius:20px 20px 20px 20px">
+                                            효능군 중복
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {% if medicine_object.openoverban.over_medicine.id %}
+                                <div id="overlap{{forloop.counter}}" style="display:none; margin-top:5%;">
+                                    <div style="font-size:2.4vh; color:#000000">
+                                        병용금기
+                                    </div>
+                                    <div style="font-size:1.8vh; color:#000000; margin-top:1%;">
+                                        두개 이상의 약물을 같이 복용했을 때 예상하지 못한 부작용이 나타나거나 치료효과가 떨어지는 약물
+                                    </div>
+                                    <div class="hr2"></div>
+                                    <div style="font-size:2.4vh; color:#000000; margin-bottom:2%;">
+                                        {{medicine_object.openoverban.mixture_item_name}}과 병용금기 입니다. {{medicine_object.openoverban.prohbt_content}} 가능성
+                                    </div>                                     
+                                </div>
+                                {% endif %}
+                                {% if medicine_object.openpregnatban.pregnat_medicine.id == medicine_object.id%}
+                                <div id="pregnat{{forloop.counter}}" style="display:none; margin-top:5%;">
+                                    <div style="font-size:2.4vh; color:#000000">
+                                        임부금기 {{medicine_object.openpregnatban.grade}}
+                                    </div>
+                                    {% if medicine_object.openpregnatban.grade == "1등급"%}
+                                    <div style="font-size:1.8vh; color:#000000; margin-top:1%;" >
+                                        임신 또는 임신하고 있을 가능성이 있는 환자 복용하면 태아에 위험성이 명확하여, 의학적으로 불가피한 경우 이외에는 반드시 임부에게 투여를 피해야 하는 약품
+                                    </div>
+                                    {% else %}
+                                    <div style="font-size:1.8vh; color:#000000; margin-top:1%;">
+                                        임신 또는 임신하고 있을 가능성이 있는 환자가 복용하면 태아에 위험성이 높을 것으로 예상되지만 임부에 대한 치료적 유익성이 위험성보다 더 높을 경우 사용가능한 약물
+                                    </div>                                    
+                                    {% endif %}
+                                    <div class="hr2"></div>
+                                    <div style="font-size:2.4vh; color:#000000; margin-bottom:2%;">
+                                        {{medicine_object.openpregnatban.prohbt_content}}
+                                    </div>                                    
+                                </div> 
+                                {% endif %}
+                                {% if medicine_object.openefficacygroupoverlap.efficacy_medicine.id %}
+                                <div id="efficacy{{forloop.counter}}" style="display:none; margin-top:5%;">
+                                    <div style="font-size:2.4vh; color:#000000">
+                                        효능군중복
+                                    </div>
+                                    <div style="font-size:1.8vh; color:#000000; margin-top:1%; margin-bottom:2%;">
+                                        약의 성분은 다르나 효능이 동일한 약물이 2가지 이상 있는 경우
+                                    </div>
+                                </div>
+                                {% endif %} 
+                            </div>
+                        </div>
+                    {% endif %}
+                
+                     <div class="hr3"></div>  
+                {% endfor %}
+            </div>
+            </div>
+        </div>
+    </div> 
+                        <script>
+                            $(".pk").click(function(){
+                                var pk = $(this).attr("pk");
+                                var dur_display=$("#dur_info"+pk);
+                                var warning_display = $("#warning_info"+pk)
+                                if(dur_display.css("display")=="none"){
+                                    dur_display.css("display","block");
+                                    warning_display.css("display","none");
+                                }else{
+                                    dur_display.css("display","none");
+                                    warning_display.css("display","block");
+                                }
+                            });
+
+                            $(".info_pk").click(function(){
+                                var pk = $(this).attr("pk");
+                                var overlap_display=$("#overlap"+pk);
+                                var pregnat_display=$("#pregnat"+pk);
+                                var efficacy_display=$("#efficacy"+pk);
+                                var overlap_btn=$("#overlap_btn"+pk);
+                                var pregnat_btn=$("#pregnat_btn"+pk);
+                                var efficacy_btn=$("#efficacy_btn"+pk);
+
+                                if(overlap_display.css("display")=="none"){
+                                    overlap_display.css("display","block");
+                                    overlap_btn.css("background-color","#DD4124");
+                                    overlap_btn.css("color","#FFFFFF");
+
+                                    pregnat_display.css("display","none");
+                                    pregnat_btn.css("background-color","#eeeeee");
+                                    pregnat_btn.css("color","#000000");
+
+                                    efficacy_display.css("display","none");
+                                    efficacy_btn.css("background-color","#eeeeee");
+                                    efficacy_btn.css("color","#000000");
+                                }
+                                else if(pregnat_display.css("display")=="none"){
+                                    overlap_display.css("display","none");
+                                    overlap_btn.css("background-color","#eeeeee");
+                                    overlap_btn.css("color","#000000");
+
+                                    pregnat_display.css("display","block");
+                                    pregnat_btn.css("background-color","#DD4124");
+                                    pregnat_btn.css("color","#FFFFFF");
+
+                                    efficacy_display.css("display","none");
+                                    efficacy_btn.css("background-color","#eeeeee");
+                                    efficacy_btn.css("color","#000000");                                    
+                                }
+                                else if(efficacy_display.css("display")=="none"){
+                                    overlap_display.css("display","none");
+                                    overlap_btn.css("background-color","#eeeeee");
+                                    overlap_btn.css("color","#000000");
+
+                                    pregnat_display.css("display","none");
+                                    pregnat_btn.css("background-color","#eeeeee");
+                                    pregnat_btn.css("color","#000000");
+
+                                    efficacy_display.css("display","block");
+                                    efficacy_btn.css("background-color","#DD4124");
+                                    efficacy_btn.css("color","#FFFFFF");
+                                }
+                            });                            
+                        </script> 
+</body>
+</html>

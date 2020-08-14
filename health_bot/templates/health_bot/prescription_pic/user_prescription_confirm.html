@@ -1,0 +1,212 @@
+{% load static %}
+<html>
+<!--bootstrap-->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--나눔고딕-->
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+<head>
+<!--알람메시지-->
+{% comment %} {% if messages %}
+    {% for message in messages %} 
+        <script>alert("{{message}}");</script>
+    {% endfor %}
+{% endif %} {% endcomment %}
+<!--알람 끝-->
+    <style>
+        body{
+            font-family: 'NanumSquare', sans-serif;
+            margin:0px;
+            padding:0px;
+            width:100%;
+            height:100vh;
+            font-size:2vh;
+        }
+        .mypage_title{
+            width:100vw;
+            text-align:center;
+            font-size:5vh;
+            font-weight:600;
+        }
+        .home_btn{
+            position:absolute;
+            margin-left:3%;
+            padding-top:1%;
+            width:10%;
+        }
+        .hr1{
+            width:100vw;
+            height:1.5vh;
+            background:#C8C8C8;
+            margin-bottom: 3%;
+        }
+        .pre_done_btn{
+            {% comment %} width:100%;
+            height:8vh;
+            text-align: center;
+            padding-top:1vh;
+            font-size: 4vh;
+            background-color: #0BA9FF;
+            color : #f8f8f8;
+            border-radius : 5px;
+            margin-bottom : 20%; {% endcomment %}
+            width: 50%;
+            height: 5vh;
+            font-weight: 600;
+            font-size: 2.5vh;
+            text-align: center;
+            color : #FFFFFF;
+            background-color: #66a3ff;
+            border-radius : 5px;
+            padding-top: 1%;
+            margin-left: 13%;
+            margin-bottom: 20%;
+        }
+        .pre_cancel_btn{
+            {% comment %} width:100%;
+            height:8vh;
+            text-align: center;
+            padding-top:1vh;
+            font-size: 4vh;
+            background-color: #4e4e4e;
+            color : #f8f8f8;
+            border-radius : 5px;
+            margin-bottom : 20%; {% endcomment %}
+            width: 50%;
+            height: 5vh;
+            font-size: 2.5vh;
+            font-weight: 600;
+            text-align: center;
+            color : #FFFFFF;
+            background-color: #C8C8C8;
+            border-radius : 5px;
+            padding-top: 1%;
+            margin-left: 15%;
+            margin-bottom: 20%;
+        }
+        .footer{
+            position: fixed;
+            background-color: #C8C8C8;
+            text-align:center;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 10vh;
+        }
+        .prescription{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:10vw;
+        }
+        .camera_btn{
+            border-radius: 40px 40px 40px 40px;
+            background-color:#383838;
+        }
+        .camera{
+            margin-top:1.5vh;
+            height:6vh;
+            width:10vw;
+        }
+        .person{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:8vw;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="mypage_title">
+                처방전 정보확인<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='{% url 'health_bot:main_page' %}'">
+            </div>
+            <div class="hr1"></div>
+            <div style="width:100%;">
+                <form action="{% url 'health_bot:prescription_done' %}" name="prescription_done_form" id="prescription_done_form" method="POST" enctype="multipart/form-data" style="width:100%; margin:0px; padding:0px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="pre_info" value="{{prescription.id}}">
+                    <div style="font-size:2.5vh">
+                        질병 코드 : <input type="text" name="di_code" value="{{di_code_fi}}">
+                    </div>
+                    <table class="table" style="margin-bottom:5%;">
+                    <thead>
+                        <tr>
+                        <th scope="col"></th>
+                        <th scope="col">의약품 코드</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for md_code in md_code_list %}
+                            <tr>
+                            <th scope="row">{{forloop.counter}}</th>
+                            <td><input type="text" value="{{md_code}}" name="md_code"></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="row" style="width:100%;">
+                <div class="pre_cancel_btn col-4" onclick="location.href='{% url 'health_bot:prescription_cancel' prescription.id %}'">
+                    취소  
+                </div> 
+                <div class="pre_done_btn col-4" onclick="document.forms['prescription_done_form'].submit(); pic();">
+                    완료
+                </div> 
+            </div>
+            <div class="footer row">
+                <div class="col-5">
+                    <img class="prescription" src="{% static 'health_bot/img/bill.png'%}">
+                    <div>
+                        처방전 목록
+                    </div>
+                </div>
+                <div class="col-2 camera_btn">
+                    <img class="camera" src="{% static 'health_bot/img/camera1.png'%}">
+                </div>
+                <div class="col-5" onclick="location.href='{% url 'health_bot:mypage' %}'">
+                    <img class="person" src="{% static 'health_bot/img/person.png'%}">
+                    <div>
+                        마이페이지
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+    <script>
+        function pic(){
+            showLoadingMask();
+            document.prescription_done_form.submit();
+        }
+
+        function showLoadingMask(){
+            var h = $(document).height();
+            var w = window.document.body.clientWidth;
+
+            var mask = $("<div id=mask style='position:absolute; z-index:9000; background-color:#000000; display:none; left:0; top:0';></div>");
+            var loadingImg = $("<div id='loadingImg' style='position : fixed; left : 26%; top : 33%; z-index : 10000;'><img src={% static 'health_bot/img/loading.gif' %} width : 5px; height : 5px;></div>");
+            
+            $('body').append(mask).append(loadingImg);
+            $("#mask").css({
+                'width' : w,
+                'height' : h,
+                'opacity' : '0.1'
+            });
+
+            $("#mask").show();
+            $("#loadingImg").show();
+        }
+
+        function removeLoadingMask(){
+            $("#mask, #loadingImg").hide();
+            $("#mask, #loadingImg").remove();
+        }
+    </script>
+</body>
+</html>

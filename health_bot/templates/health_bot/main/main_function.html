@@ -1,0 +1,235 @@
+{% load static %}
+<html>
+<!--bootstrap-->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--나눔고딕-->
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+<head>
+    <style>
+        body{
+            font-family: 'NanumSquare', sans-serif;
+            margin:0px;
+            padding:0px;
+            width:100%;
+            height:100vh;
+            font-size:2vh;
+        }
+        .main_up_bar{
+            height:13vh;
+        }
+        .app_logo_main{
+            position:absolute; 
+            width:15vh;
+            margin-top:2vh;
+            margin-left:7vw;
+        }
+        .app_name_main{
+            position:relative;
+            color:#FFFFFF;
+            margin-top:6.3vh;
+            margin-left:10vw;
+            font-weight:700;
+        }
+        .alarm_main{
+            width:10vw;
+            margin-left:25vw;
+            margin-top:3vh;
+        }
+        .user_photo{
+            width:12vw;
+            height:7vh;
+            border-radius: 50%;
+        }
+        .drug{
+            width:12vw;
+            height:7vh;
+            margin-top:30%;
+            margin-left: 5%;
+        }
+        .hr1{
+            width:100vw;
+            height:1.5vh;
+            background:#C8C8C8;
+        }
+        .family_list{
+            width:100%;
+            text-align:center;
+            padding-left:5%;
+            margin-top:3%;
+            margin-bottom:3%;
+        }
+        .footer{
+            position: fixed;
+            background-color: #C8C8C8;
+            text-align:center;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 10vh;
+        }
+        .prescription{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:10vw;
+        }
+        .camera_btn{
+            border-radius: 40px 40px 40px 40px;
+            background-color:#383838;
+        }
+        .camera{
+            margin-top:1.5vh;
+            height:6vh;
+            width:10vw;
+        }
+        .person{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:8vw;
+        }
+    </style>
+     {% if messages %}
+            {% for message in messages %}
+            <script>
+                alert('{{message.message}}')
+            </script>
+        {% endfor %}
+    {% endif %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="main_up_bar row">
+                <div class="col-8">
+                    <img class="app_logo_main" src="{% static 'health_bot/img/cloud_main.png'%}">
+                    <div class="app_name_main">CLOUD CARE</div>
+                </div>
+                <div class="col-4">
+                    <img class="alarm_main" src="{% static 'health_bot/img/bell_main.png'%}">
+                </div>
+            </div>
+            <div class="hr1"></div>
+            <div class="family_list row" style="width:100%;">
+                {% if family_list %}
+                    {% for family in family_list%}
+                        <div class="col-3" onclick="location.href='{% url 'health_bot:family_prescription_check' family.pk %}'">
+                            {% if family.user_photo %}
+                                <div><img class="user_photo" src="{{family.user_photo.url}}"></div>
+                            {% else %}
+                                <div><img class="user_photo" src="{% static 'health_bot/img/person.png'%}"></div>
+                            {% endif %}
+                            {% if family.user_name == user.user_name %}
+                            <div style="color:#DD4124;">{{family.user_name}}</div>
+                            {% else %}
+                            <div>{{family.user_name}}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-3">
+                        {% if user.user_photo %}
+                            <div><img class="user_photo" src="{{family.user_photo.url}}"></div>
+                        {% else %}
+                            <div><img class="user_photo" src="{% static 'health_bot/img/person.png'%}"></div>
+                        {% endif %}
+                        <div >{{user.user_name}}</div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="hr1"></div>
+            <div class="row" style="margin:0; padding:0; width: 100%; margin-top: 1%; height:5vh; margin-bottom: 2%; padding-left:3.5%; font-size: 2.4vh; font-weight:600;">
+                {% if disease_color == "1" %}
+                <div class="col-3" id="disease" onclick="location.href='{% url 'health_bot:di_main_page' user.pk%}'" style="color:#DD4124; border-bottom:3px solid #DD4124;">
+                    질병별
+                </div>
+                <div class="col-4" id="hos_date" onclick="location.href='{% url 'health_bot:hos_main_page' user.pk%}'">
+                    진료일별
+                </div>
+                {% elif hos_color == "1" %}
+                <div class="col-3" id="disease" onclick="location.href='{% url 'health_bot:di_main_page' user.pk%}'">
+                    질병별
+                </div>
+                <div class="col-4" id="hos_date" onclick="location.href='{% url 'health_bot:hos_main_page' user.pk%}'" style="color:#DD4124; border-bottom:3px solid #DD4124;">
+                    진료일별
+                </div>
+                {% else %}
+                <div class="col-3" id="disease" onclick="location.href='{% url 'health_bot:di_main_page' user.pk%}'" style="color:#DD4124; border-bottom:3px solid #DD4124;">
+                    질병별
+                </div>
+                <div class="col-4" id="hos_date" onclick="location.href='{% url 'health_bot:hos_main_page' user.pk%}'">
+                    진료일별
+                </div>
+                {% endif %}
+            </div>
+            {% for prescription, disease in data.items %}
+                <div class="row" style="overflow:scroll; margin:0; padding:0; width: 100%; height:10vh; background:#eeeeee;" onclick="location.href='{% url 'health_bot:prescription_info' prescription.id %}'">
+                    <div class="col-2">
+                        <img class="drug" src="{% static 'health_bot/img/drug.png'%}">
+                    </div>
+                    <div class="col-10">
+                        <div style="margin-top:2%; margin-bottom:1%;font-size: 2.5vh; font-weight: 600;">{{disease.disease_name}}</div>
+                        <div>날짜 : {{prescription.prescription_date|date:"Y년 m월 d일"}}</div>
+                    </div>
+                </div>    
+            {% endfor %}
+            <div style="margin-bottom:40%;"></div>                   
+            <div class="footer row">
+                <div class="col-5">
+                    <img class="prescription" src="{% static 'health_bot/img/bill.png'%}" onclick="location.href='{% url 'health_bot:main_page'%}'">
+                    <div>
+                        처방전 목록
+                    </div>
+                </div>
+                <div class="col-2 camera_btn">
+                    <img class="camera" src="{% static 'health_bot/img/camera1.png'%}" onclick="document.getElementById('camera').click();">
+                    <form name="take_pic_prescription" action="{% url 'health_bot:take_pic_prescription' %}" style="margin:0; padding:0;" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="file" onchange="pic();" name="camera" accept="image/*" capture="camera" id="camera" style="display: none;">
+                    </form>
+                </div>
+                <div class="col-5" onclick="location.href='{% url 'health_bot:mypage' %}'">
+                    <img class="person" src="{% static 'health_bot/img/person.png'%}">
+                    <div>
+                        마이페이지
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+    <script>
+        function pic(){
+            showLoadingMask();
+            document.take_pic_prescription.submit();
+        }
+
+        function showLoadingMask(){
+            var h = $(document).height();
+            var w = window.document.body.clientWidth;
+
+            var mask = $("<div id=mask style='position:absolute; z-index:9000; background-color:#000000; display:none; left:0; top:0';></div>");
+            var loadingImg = $("<div id='loadingImg' style='position : fixed; left : 26%; top : 33%; z-index : 10000;'><img src={% static 'health_bot/img/loading.gif' %} width : 5px; height : 5px;></div>");
+            
+            $('body').append(mask).append(loadingImg);
+            $("#mask").css({
+                'width' : w,
+                'height' : h,
+                'opacity' : '0.1'
+            });
+
+            $("#mask").show();
+            $("#loadingImg").show();
+        }
+
+        function removeLoadingMask(){
+            $("#mask, #loadingImg").hide();
+            $("#mask, #loadingImg").remove();
+        }
+    </script>
+</body>
+</html>

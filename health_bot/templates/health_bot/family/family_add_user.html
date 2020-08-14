@@ -1,0 +1,265 @@
+{% load static %}
+<html>
+<!--bootstrap-->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--나눔고딕-->
+<link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+<head>
+<!--알람메시지-->
+{% if messages %}
+    {% for message in messages %} 
+        <script>alert("{{message}}");</script>
+    {% endfor %}
+{% endif %}
+<!--알람 끝-->
+    <style>
+        body{
+            font-family: 'NanumSquare', sans-serif;
+            margin:0px;
+            padding:0px;
+            width:100%;
+            height:100vh;
+            font-size:2vh;
+        }
+        .family_title{
+            width:100vw;
+            text-align:center;
+            font-size:5vh;
+            font-weight:600;
+        }
+        .home_btn{
+            position:absolute;
+            margin-left:15%;
+            padding-top:1%;
+            width:10%;
+        }
+        .hr1{
+            width:100vw;
+            height:1.5vh;
+            background:#C8C8C8;
+            margin-bottom: 3%;
+        }
+        .family_name_title{
+            font-size: 3vh;
+            font-weight: 600;
+            margin-left: 14%;
+        }
+        .user_find_div{
+            font-size: 3vh;
+            font-weight: 600;
+            margin-left: 14%;
+        }
+        .user_find{
+            width:100%;
+        }
+        .search_img{
+            width:8%;
+        }
+        .find_user_text{
+            width:70%;
+            height:6vh;
+            font-size: 2.5vh;
+            border: 2px solid #C8C8C8;
+            border-radius : 5px;
+            font-weight: 600;
+            margin-top: 3%;
+            margin-bottom: 5%;
+            padding-left: 5%; 
+            margin-left: 12%;       
+        }
+        .family_create_done_title{
+            width: 100%;
+        }
+        .family_create_cancel{
+            width: 50%;
+            height: 5vh;
+            font-size: 2.5vh;
+            font-weight: 600;
+            text-align: center;
+            color : #FFFFFF;
+            background-color: #C8C8C8;
+            border-radius : 5px;
+            padding-top: 1%;
+            margin-left: 15%;
+        }
+        .family_create_done{
+            width: 50%;
+            height: 5vh;
+            font-weight: 600;
+            font-size: 2.5vh;
+            text-align: center;
+            color : #FFFFFF;
+            background-color: #66a3ff;
+            border-radius : 5px;
+            padding-top: 1%;
+            margin-left: 13%;
+        }
+        .find_user_table{
+            width:100%;
+
+        }
+        td{
+            text-align:left;
+        }
+        .footer{
+            position: fixed;
+            background-color: #C8C8C8;
+            text-align:center;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 10vh;
+        }
+        .prescription{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:10vw;
+        }
+        .camera_btn{
+            border-radius: 40px 40px 40px 40px;
+            background-color:#383838;
+        }
+        .camera{
+            margin-top:1.5vh;
+            height:6vh;
+            width:10vw;
+        }
+        .person{
+            margin-top:1vh;
+            border-radius:50%;
+            height:5vh;
+            width:8vw;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="family_title">
+                가족 생성<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='{% url 'health_bot:main_page' %}'">
+            </div>
+            <div class="hr1"></div>
+            <div class="user_find_div">
+                유저 찾기
+            </div>
+            <div class="user_find">
+                <input type="text" class="find_user_text" id="user_email" placeholder="검색할 이메일을 입력해주세요">
+                <img src="{% static 'health_bot/img/search.png'%}" id="search_user" class="search_img">
+                <div class="find_user_table">
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                            <th scope="col" style="font-size:3vh">검색 결과</th>
+                            </tr>
+                        </thead>
+                        <tbody id="find_user_result" style="background-color:#FFFFFF; text-align:center;">  
+                        
+                        </tbody>
+                    </table> 
+                </div>
+            </div>                 
+            <div class="footer row">
+                <div class="col-5">
+                    <img class="prescription" src="{% static 'health_bot/img/bill.png'%}">
+                    <div>
+                        처방전 목록
+                    </div>
+                </div>
+                <div class="col-2 camera_btn">
+                    <img class="camera" src="{% static 'health_bot/img/camera1.png'%}">
+                </div>
+                <div class="col-5" onclick="location.href='{% url 'health_bot:mypage' %}'">
+                    <img class="person" src="{% static 'health_bot/img/person.png'%}">
+                    <div>
+                        마이페이지
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    $("#search_user").click(function() {
+        var user_email = $("#user_email").val();
+        $.ajax({
+            type : "POST",
+            url : "{% url 'health_bot:userFind' %}",
+            data : {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'user_email': user_email,
+                },
+            success : function(response)
+            {
+                if(response.msg == 'Y')
+                {
+                    var addtrstart = "<tr>"
+                    var addtrend = "</tr>"
+                    var index = 1;
+                    for(i=0; i<response.user_id_list.length; i++){
+                        var adduseridtd = "<td id='user_id"+index+"'>"+response.user_id_list[i]+"<button onclick='user_add(this.id)' id='user_add_button"+index+"' 'type='button' style='margin-left:15px;' class='btn btn-primary'>추가</button></td>";
+                        addtrstart += adduseridtd 
+                        addtrstart += addtrend
+                                            
+                        document.getElementById("find_user_result").innerHTML=addtrstart;
+                                          
+                        index=index+1;
+                    }
+                }else{
+                    alert("검색한 ID가 존재하지 않습니다.");
+                }
+            },
+            error : function(a, b, c)
+            {
+                alert(a + " " + b + " " + c);
+            }
+        });
+    });
+    function user_add(button_id){
+        var index = button_id.substring(15);
+        var user_id_ = $("#user_id"+index).text();
+        var user_id = user_id_.replace("추가", "");
+        $.ajax({
+				type : "POST",
+				url : "{% url 'health_bot:userAdd' %}",
+				data : {
+					'csrfmiddlewaretoken': '{{ csrf_token }}',
+					'user_id' : user_id,
+				},
+				success : function(response)
+				{
+					alert("가족 구성원 추가 완료");
+				},
+                error : function(request, status, error ){
+                    alert("가족 구성원 추가 실패");
+                },
+		    });
+    }
+
+    {% comment %} function friend_delete(button_id){
+        var friend_ = button_id.replace("button", "");
+        var friend__ = $("#td"+friend_).text();
+        var friend_id = friend__.replace("삭제", "");
+         $.ajax({
+				type : "POST",
+				url : "{% url 'health_bot:userDelete' %}",
+				data : {
+					'csrfmiddlewaretoken': '{{ csrf_token }}',
+					'friend_id' : friend_id,
+				},
+				success : function(response)
+				{
+					alert("친구 삭제 완료");
+				},
+                error : function(request, status, error ){
+                    alert("친구 삭제 실패");
+                },
+		    });
+    } {% endcomment %}
+</script>
+</body>
+</html>
