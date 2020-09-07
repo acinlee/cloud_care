@@ -49,27 +49,69 @@ def from_iterable(iterables):
         for element in it:
             yield element
 
-#메인 화면
-def main_page(request):
+def home(request):
+    user = User.objects.get(user_email=request.session.get('user_email'))
+    family_list = Family.objects.filter(user=user)
+    if family_list:
+        return render(request, 'health_bot/main/family_choice.html', {
+                        'user' : user, 'family_list':family_list})
+    else:
+        return redirect('/CloudCareMain')                    
+
+#가족 선택 화면
+def family_choice_page(request, family_pk):
     user = User.objects.get(user_email=request.session['user_email'])
+    #현재 선택한 가족명 세션 추가
+    addSessions_fm(request, family_pk)
+    #가족이 있는 경우에만 들어올 수 있는 뷰
+    family = Family.objects.get(pk=family_pk)
+
+    family_list = FamilyList.objects.filter(family=family)
+   # print(family_list)
+    #처방전 예외처리
     try:
-        family_list = User.objects.filter(family_name = user.family_name).exclude(family_name__isnull=True)
+        #prescription_list = []
+        # for pre_user in family_list:
+        #     pre = Prescription.objects.filter(prescription_user=pre_user.user)
+        #     if pre:
+        #         prescription_list.append(pre)
+        prescription_list = Prescription.objects.filter(prescription_user=user)
+        print(prescription_list) 
+        data={}
+        for prescription_object in prescription_list:
+            disease_object = Disease.objects.get(disease_prescription=prescription_object.id)
+            data.setdefault(prescription_object, disease_object)
+           
+        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list, 'data':data})
+    except Exception as e:
+        print(e)
+        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list})
+
+#메인 화면(가족 없는 경우)
+def main_page(request):
+    if request.session.get('family_name'):
+        return redirect('/CloudCareMainFK')
+    user = User.objects.get(user_email=request.session['user_email'])
+    #처방전 없는 경우
+    try:
         prescription_list = Prescription.objects.filter(prescription_user=user)
         data={}
         for prescription_object in prescription_list:
             disease_object = Disease.objects.get(disease_prescription=prescription_object.id)
             data.setdefault(prescription_object, disease_object)
-        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list, 'data':data})
-    except: 
-        return render(request, 'health_bot/main/main_function.html', {'user' : user,})
+        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'data':data})
+    except:
+        return render(request, 'health_bot/main/main_function.html', {'user' : user})
 
-#질병별
-def disease_main_page(request, family_id):
-    #user = User.objects.get(user_email=request.session['user_email'])
-    user = User.objects.get(pk=family_id)
-    disease_color = "1" #질병별인지
+#가족 선택 후 처방전 등록시 홈화면 이동 
+def main_page_fk(request):
+    user = User.objects.get(user_email=request.session['user_email'])
+    #family_list = User.objects.filter(family__family_name=request.session['family_name'])
+    family_list = FamilyList.objects.filter(family=request.session['family_name'])
+    print(family_list)
+    #처방전 없는 경우
     try:
-        family_list = User.objects.filter(family_name = user.family_name).exclude(family_name__isnull=True)
+        
         prescription_list = Prescription.objects.filter(prescription_user=user)
         disease_list = []
         for prescription_object in prescription_list:
@@ -79,26 +121,101 @@ def disease_main_page(request, family_id):
         for disease_object in disease_list_fi:
             prescription_object = Prescription.objects.get(id=disease_object.disease_prescription.id)
             data.setdefault(prescription_object, disease_object)
+        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list, 'data':data})
+    except:
+        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list})
 
-        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list, 'data':data, 'disease_color':disease_color})
-    except: 
-        return render(request, 'health_bot/main/main_function.html', {'user' : user,})
-
-#진료일별
-def hos_main_page(request, family_id):
+#질병별
+def disease_main_page(request, family_pk):
     #user = User.objects.get(user_email=request.session['user_email'])
-    user = User.objects.get(pk=family_id)
+    user = User.objects.get(pk=family_pk)
+
+    obj = User.objects.get(user_email=request.session.get('user_email'))
+    
+    disease_color = "1" #질병별인지
+    family_list = None
+    try:
+    #가족 있는 경우
+        if request.session.get('family_name'):
+            family = Family.objects.get(id=request.session.get('family_name'))
+            family_list = FamilyList.objects.filter(family=family)
+        #가족 있고 처방전 있는 경우
+        try:
+            prescription_list = Prescription.objects.filter(prescription_user=user)
+            disease_list = []
+            for prescription_object in prescription_list:
+                disease_list.append(Disease.objects.filter(disease_prescription=prescription_object).order_by('disease_name'))
+            disease_list_fi = list(itertools.chain.from_iterable(disease_list))
+            data={}
+            for disease_object in disease_list_fi:
+                prescription_object = Prescription.objects.get(id=disease_object.disease_prescription.id)
+                data.setdefault(prescription_object, disease_object)
+            return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list, 'data':data, 'disease_color':disease_color})
+        #가족 있고 처방전 없는 경우
+        except:
+            return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list})
+    #가족 없는 경우
+    except:
+        #가족 없고 처방전 있는 경우
+        try:
+            prescription_list = Prescription.objects.filter(prescription_user=user)
+            disease_list = []
+            for prescription_object in prescription_list:
+                disease_list.append(Disease.objects.filter(disease_prescription=prescription_object).order_by('disease_name'))
+            disease_list_fi = list(itertools.chain.from_iterable(disease_list))
+            data={}
+            for disease_object in disease_list_fi:
+                prescription_object = Prescription.objects.get(id=disease_object.disease_prescription.id)
+                data.setdefault(prescription_object, disease_object)
+            return render(request, 'health_bot/main/main_function.html', {'user' : user,'data':data, 'disease_color':disease_color})
+        #가족 없고 처방전 없는 경우
+        except:
+            return render(request, 'health_bot/main/main_function.html', {'user' : user})
+            
+#진료일별
+def hos_main_page(request, family_pk):
+    #user = User.objects.get(user_email=request.session['user_email'])
+    user = User.objects.get(pk=family_pk)
+    
+    obj = User.objects.get(user_email=request.session.get('user_email'))
+    family_list = None
     hos_color = "1" #진료일별인지
     try:
-        family_list = User.objects.filter(family_name = user.family_name).exclude(family_name__isnull=True)
-        prescription_list = Prescription.objects.filter(prescription_user=user).order_by('prescription_date')
-        data={}
-        for prescription_object in prescription_list:
-            disease_object = Disease.objects.get(disease_prescription=prescription_object.id)
-            data.setdefault(prescription_object, disease_object)
-        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list, 'data':data, 'hos_color':hos_color})
-    except: 
-        return render(request, 'health_bot/main/main_function.html', {'user' : user,})
+    #가족 있는 경우
+        if request.session.get('family_name'):
+            family = Family.objects.get(id=request.session.get('family_name'))
+            family_list = FamilyList.objects.filter(family=family)
+        #가족 있고 처방전 있는 경우
+        try:
+            prescription_list = Prescription.objects.filter(prescription_user=user)
+            
+            data={}
+            for prescription_object in prescription_list:
+                disease_object = Disease.objects.get(disease_prescription=prescription_object.id)
+                data.setdefault(prescription_object, disease_object)
+
+            return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list, 'data':data, 'hos_color':hos_color})
+        #가족 있고 처방전 없는 경우
+        except Exception as e:
+            print(e)
+            return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list})
+    #가족 없는 경우
+    except:
+        #가족 없고 처방전 있는 경우
+        try:
+            prescription_list = Prescription.objects.filter(prescription_user=user)
+            disease_list = []
+            for prescription_object in prescription_list:
+                disease_list.append(Disease.objects.filter(disease_prescription=prescription_object).order_by('prescription_date'))
+            disease_list_fi = list(itertools.chain.from_iterable(disease_list))
+            data={}
+            for disease_object in disease_list_fi:
+                prescription_object = Prescription.objects.get(id=disease_object.disease_prescription.id)
+                data.setdefault(prescription_object, disease_object)
+            return render(request, 'health_bot/main/main_function.html', {'user' : user,'data':data, 'hos_color':hos_color})
+        #가족 없고 처방전 없는 경우
+        except:
+            return render(request, 'health_bot/main/main_function.html', {'user' : user})
 
 
 #세션 관리
@@ -106,7 +223,11 @@ def hos_main_page(request, family_id):
 def addSessions(request, user):
     request.session['user_email'] = user.user_email
     request.session['user_pw'] = user.user_pw
-    
+
+#1-2. 가족 세션 추가
+def addSessions_fm(request, family):
+    request.session['family_name'] = family
+
 #2. 세션 제거
 def Logout(request):
     for item in list(request.session.keys()):
@@ -130,27 +251,31 @@ def Login_view(request):
 #2. 로그인 기능
 def Login(request):
     if request.method == 'POST':
+        if request.session.get('family_name'):
+             del request.session['family_name']
         user_email = request.POST['user_email']
         user_pw = request.POST['user_pw']
         try:
             user = User.objects.get(user_email=user_email)
             if user_pw == user.user_pw:
                 addSessions(request, user)
-                try:
-                    family_list = User.objects.filter(family_name = user.family_name).exclude(family_name__isnull=True)
-                    prescription_list = Prescription.objects.filter(prescription_user=user)
-                    data={}
-                    for prescription_object in prescription_list:
-                        disease_object = Disease.objects.get(disease_prescription=prescription_object.id)
-                        data.setdefault(prescription_object, disease_object)
-
+                
+                family_list = Family.objects.filter(user=user)
+                if not family_list:
+                    family_list = []
+                    for el in FamilyList.objects.filter(family_user=user):
+                        family_list.append(el.family)
+                    
+                print(family_list)
+                if family_list:
+                    messages.info(request, '로그인 성공')  
+                    return render(request, 'health_bot/main/family_choice.html', {
+                        'user' : user, 'family_list':family_list})
+                else:
                     messages.info(request, '로그인 성공')    
-                    return render(request, 'health_bot/main/main_function.html', {
-                        'user' : user, 'family_list':family_list, 'data':data})
-                except:
-                    messages.info(request, '로그인 성공')    
-                    return render(request, 'health_bot/main/main_function.html', {
-                        'user' : user,})
+                    return redirect('/CloudCareMain')
+                    # return render(request, 'health_bot/main/main_function.html', {
+                    #     'user' : user})
             elif user_pw != user.user_pw:
                 return render_to_response('health_bot/statementpage/Error.html', {
                     'alert_msg' : '비밀번호가 맞지 않습니다.',
@@ -300,15 +425,16 @@ def user_photo_edit(request):
 #1.가족 추가페이지 이동
 def family_create_page(request):
     user = User.objects.get(user_email=request.session['user_email'])
-    if user.family_name:
-        messages.error(request, "이미 가족 구성원입니다.")
-        return render(request, 'health_bot/mypage/mypage.html', {'user': user})
-    else:
-        return render(request, 'health_bot/family/family_create.html', {'user':user})
+    # if user.family_name:
+    #     messages.error(request, "이미 가족 구성원입니다.")
+    #     return render(request, 'health_bot/mypage/mypage.html', {'user': user})
+    # else:
+    return render(request, 'health_bot/family/family_create.html', {'user':user})
 
 #2.가족 이름 설정
 def family_create(request):
     if request.method == "POST":
+        
         user = User.objects.get(user_email=request.session['user_email'])
         if request.POST['family_name']=="":
             messages.error(request, "가족 이름을 설정해 주세요")
@@ -316,35 +442,54 @@ def family_create(request):
         else:
             family = Family.objects.create(
                 family_name = request.POST['family_name'],
+                user=user
             )
-            User.objects.filter(user_email=request.session['user_email']).update(
-                family_name =family.pk
-            )
+            addSessions_fm(request,family.pk)
             return render(request, 'health_bot/family/family_add_user.html', {'user':user, 'family':family})
             
 #3.유저 찾기
 def userFind(request):
     user_email = request.POST['user_email'] #유저가 입력한 텍스트
-    user_list = User.objects.filter(user_email__icontains=user_email).exclude(user_email=request.session['user_email']).exclude(family_name__isnull=False).order_by('user_email')
-    user_id_list = []
-    for user in user_list:
-        user_id_list.append(user.pk)
-    
-    if not user_id_list:
+    user_list = User.objects.filter(user_email=user_email).exclude(user_email=request.session['user_email'])
+    user = User.objects.get(user_email=request.session.get('user_email'))
+    family = Family.objects.get(id=request.session.get('family_name'))
+    fl = None
+
+    if user_list:
+        fl = FamilyList.objects.filter(user=user,family_user=user_list[0],family=family)
+    if fl or not user_list:
         context = {  'msg' : 'N',  }
     else:
-        context = {  'msg' : 'Y', 'user_id_list':user_id_list,}
+        
+        user_id_list = [user_list[0].pk]
+        context = {  'msg' : 'Y', 'user_id_list':user_id_list,'family_id':request.session.get('family_name')}
 
     return HttpResponse(json.dumps(context), content_type="application/json")
 
+
+def denialAdd(request,noti_id):
+    noti = Notification.objects.get(id=noti_id)
+    noti.delete()
+    return redirect('/request_family_page')
+
 #4.유저 추가
-def userAdd(request):
-    user_id = request.POST['user_id'] #유저가 입력한 텍스트
-    user = User.objects.get(user_email=request.session['user_email'])
-    User.objects.filter(user_email=user_id).update(
-        family_name = user.family_name
-    )
-    return HttpResponse("success")
+def userAdd(request,noti_id):
+    noti = Notification.objects.get(id=noti_id)
+    family = Family.objects.get(id=noti.family_id)
+    
+    family_list = FamilyList.objects.filter(user=noti.family_user,family_user = noti.user,family = family)
+    if not family_list:
+        FamilyList.objects.create(
+            user = noti.family_user,
+            family_user = noti.user,
+            family = family
+        )
+    else:
+        messages.info(request,"기존에 수락 했습니다.")
+    noti.delete()
+    return redirect('/request_family_page')
+    
+
 
 #5.유저 삭제
 def userDelete(request):
@@ -356,51 +501,65 @@ def userDelete(request):
 
 #6.가족 구성원 추가 페이지 이동
 def family_memeber_add_page(request):
-    user = User.objects.get(user_email=request.session['user_email'])
-    try:
-        family = Family.objects.filter(pk=user.family_name.pk)
+    if request.session.get('family_name'):
+        user = User.objects.get(user_email=request.session['user_email'])
+        family = Family.objects.filter(user=user)
+        print(family)
         return render(request, 'health_bot/family/family_add_user.html', {'user':user, 'family':family})
 
-    except:
+    else:
         messages.error(request, '가족을 먼저 생성해 주세요')
         return redirect('health_bot:mypage')
     
 
 #7.처방전 사진 촬영
-def opencv_prescription(request):   
-    user = User.objects.get(user_email=request.session['user_email'])
+@csrf_exempt
+def upload_image(request):
+    print("="*20)
     if request.method == 'POST': # method가 POST 방식이라면 글이 써진 것
-        
-        pre = Prescription.objects.create(
+        user = User.objects.get(user_email=request.POST.get('user_id'))
+        print(request.POST.get('user_id'))
+        print(request.FILES['camera'])
+        print(request.FILES)
+        Prescription.objects.create(
             prescription_user = user,
             prescription_date = timezone.now(),
             prescription_photo = request.FILES['camera']
         )
-        imgpre_1 = cv.imread('C:/Users/acin3/Downloads/test/test5.jpg')#cv.imread("./media/"+str(pre.prescription_photo))
 
-        pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+        return HttpResponse(json.dumps({}), content_type="application/json")
 
-        img = cv.resize(imgpre_1, dsize=(720, 720), interpolation=cv.INTER_AREA) #리사이즈 이미지
-        dst = img.copy()
-        disease = dst[180:220, 67:190] #질병코드
+
+def opencv_prescription(request):   
+    if request.method == 'GET': # method가 POST 방식이라면 글이 써진 것
+        user = User.objects.get(user_email=request.session['user_email'])
+        pre = Prescription.objects.filter(prescription_user=user).last()
+        imgpre_1 = cv.imread("./media/"+str(pre.prescription_photo)) #cv.imread('C:/Users/acin3/Downloads/test/test5.jpg')
+
+       # pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+
+        #img = cv.resize(imgpre_1, dsize=(730,950), interpolation=cv.INTER_AREA) #리사이즈 이미지
+        dst = imgpre_1.copy()
+        disease = dst[230:270, 37:187] #질병코드
         #md1 = img[250:300, 30:314] #약코드1
-        md1 = dst[280:315, 20:314] #약코드1
+        md1 = dst[350:390, 20:314] #약코드1
         #md3 = dst[316:332, 30:314] #약코드3
-        md2 = dst[315:350, 20:314] #약코드2
+        md2 = dst[390:430, 20:314] #약코드2
         #md5 = dst[351:366, 30:314] #약코드5
-        md3 = dst[350:385, 20:314] #약코드3
+        md3 = dst[430:470, 20:314] #약코드3
         #md7 = dst[386:405, 30:314] #약코드7
-        md4 = dst[390:420, 20:314] #약코드4
+        md4 = dst[470:510, 20:314] #약코드4
         #md9 = dst[421:440, 30:314] #약코드9
-        md5 = dst[421:455, 20:314] #약코드5
+        md5 = dst[510:550, 20:314] #약코드5
         #md11 = dst[455:470, 30:314] #약코드11
-        md6 = dst[455:488, 20:314] #약코드6
+        md6 = dst[550:590, 20:314] #약코드6
         #md13 = dst[489:505, 30:314] #약코드13
-        md7 = dst[490:522, 20:314] #약코드7
+        md7 = dst[590:630, 20:314] #약코드7
         #md15 = dst[523:540, 30:314] #약코드15
-        md8 = dst[523:555, 20:314] #약코드8
+        md8 = dst[630:670, 20:314] #약코드8
 
         # cv.namedWindow('image')
+       
         # while(True):
         #     cv.imshow('disease', disease)
         #     cv.imshow('md1', md1)
@@ -411,14 +570,14 @@ def opencv_prescription(request):
         #     cv.imshow('md6', md6)
         #     cv.imshow('md7', md7)
         #     cv.imshow('md8', md8)
-        #     cv.imshow('md9', md9)
-        #     cv.imshow('md10', md10)
-        #     cv.imshow('md11', md11)
-        #     cv.imshow('md12', md12)
-        #     cv.imshow('md13', md13)
-        #     cv.imshow('md14', md14)
-        #     cv.imshow('md15', md15)
-        #     cv.imshow('md16', md16)
+        #     # cv.imshow('md9', md9)
+        #     # cv.imshow('md10', md10)
+        #     # cv.imshow('md11', md11)
+        #     # cv.imshow('md12', md12)
+        #     # cv.imshow('md13', md13)
+        #     # cv.imshow('md14', md14)
+        #     # cv.imshow('md15', md15)
+        #     # cv.imshow('md16', md16)
 
         #     k=cv.waitKey(1) & 0xFF
         #     if k==27:
@@ -426,17 +585,22 @@ def opencv_prescription(request):
         #         break
         # cv.destroyAllWindows()
         md_list = [md1,md2,md3,md4,md5,md6,md7,md8]
-        di_code_fi = pytesseract.image_to_string(disease, lang='fra') #질병 코드
+        di_code_fi = pytesseract.image_to_string(disease,lang='fra') #질병 코드
+        di_code_fi = di_code_fi.replace('\x0c','')
         md_code_list = []
         for med in md_list:
-            md_code_before = pytesseract.image_to_string(med, lang='eng+kor')
+            md_code_before = pytesseract.image_to_string(med,lang='eng+kor')
             md_code_fi = re.sub('[-=+,#/\?:^$.@*\"※~&%ㆍ!』\\‘|\(\)\[\]\<\>`\'…》]', '', md_code_before.split(' ')[0])
+            
             if md_code_fi==" " or md_code_fi=="":
                 break
             else:
-                print(md_code_fi)
-                md_code_list.append(md_code_fi) #약 코드
-
+                #print(md_code_fi)
+                if md_code_fi != '\x0c':
+                    md_code_list.append(md_code_fi) #약 코드
+        
+        print(di_code_fi)
+        print(md_code_list)
         return render(request, 'health_bot/prescription_pic/user_prescription_confirm.html', {'di_code_fi':di_code_fi, 'md_code_list':md_code_list, 'prescription':pre})
 
 #8.처방전 사용자가 정보 확인 후 db에 처방전 정보 저장
@@ -444,7 +608,6 @@ def prescription_confirm(request):
     from bs4 import BeautifulSoup
     if request.method == 'POST':
         md_code = request.POST.getlist('md_code') #의약품 코드 리스트
-        print(md_code)
         di_code = request.POST['di_code'] #질병 코드
 
         url_di = 'http://apis.data.go.kr/B551182/diseaseInfoService/getDissNameCodeList?sickType=1&medTp=2&diseaseType=SICK_CD&searchText='+di_code+'&ServiceKey=qjxP80L1gooQePXFXKhFd%2BXwiKxAyipUx1phE%2F6JZ9iQwqhD8EUTiXO8244ROcnVAbOHU8pc7xueCGGe9j0dcQ%3D%3D&_type=json'
@@ -453,7 +616,7 @@ def prescription_confirm(request):
         sick_name = req_json_dumps['response']['body']['items']['item']['sickNm'] #병명
         sick_code = req_json_dumps['response']['body']['items']['item']['sickCd'] #병코드
 
-        pre_foreign = Prescription.objects.get(pk=request.POST['pre_info']) #처방전 id
+        pre_foreign = Prescription.objects.get(pk=request. POST['pre_info']) #처방전 id
         Disease.objects.create(
             disease_prescription = pre_foreign,
             disease_name = sick_name,
@@ -509,7 +672,6 @@ def prescription_confirm(request):
                     mark_code_back = text[29], #마크코드(뒤)
                     edi_code = text[30] #보험코드
                 )
-                print('hello')
 
         medicine = Medicine.objects.filter(pre_medicine=pre_foreign)
         #병용금기    
@@ -589,7 +751,12 @@ def prescription_confirm(request):
                     item_seq = req_json_dumps['response']['body']['items']['item']['ITEM_SEQ'],
                     item_name = req_json_dumps['response']['body']['items']['item']['ITEM_NAME']
                 )
-        return redirect('health_bot:main_page')
+        if request.session.get('family_name'):
+            
+            return redirect('/CloudCareMainFK')
+        else:
+            
+            return redirect('/CloudCareMain')
 
 #9. 처방전 사진 취소시 처방전 정보 삭제
 def prescription_cancel(request, pre_info):
@@ -613,17 +780,22 @@ def medicine_detail_info(request, medicine_info):
 
 #12. 가족 처방전 확인
 def family_prescription_check(request, family_id):
-    user = User.objects.get(pk=family_id)
+
+    family_user = User.objects.get(pk=family_id)
+    user = User.objects.get(pk=request.session.get('user_email'))
+    #family_list = User.objects.filter(family__family_name=request.session['family_name'])
+    family = Family.objects.get(id=request.session.get('family_name'))
+    family_list = FamilyList.objects.filter(family=family)
     try:
-        family_list = User.objects.filter(family_name = user.family_name).exclude(family_name__isnull=True)
-        prescription_list = Prescription.objects.filter(prescription_user=user)
+        
+        prescription_list = Prescription.objects.filter(prescription_user=family_user)
         data={}
         for prescription_object in prescription_list:
             disease_object = Disease.objects.get(disease_prescription=prescription_object.id)
             data.setdefault(prescription_object, disease_object)
-        return render(request, 'health_bot/main/main_function.html', {'user' : user, 'family_list':family_list, 'data':data})
+        return render(request, 'health_bot/main/main_function.html', {'user' : family_user, 'family_list':family_list, 'data':data})
     except: 
-        return render(request, 'health_bot/main/main_function.html', {'user' : user,})
+        return render(request, 'health_bot/main/main_function.html', {'user' : family_user, 'family_list':family_list})
 
 #django android test
 class UserViewSet(viewsets.ModelViewSet):
@@ -644,4 +816,39 @@ def app_signup(request):
                 return JsonResponse({'code' : '0001', 'msg' : '비밀번호 오류'})
         except User.DoesNotExist:
             return JsonResponse({'code' : '0011', 'msg' : '존재하지 않는 아이디'})
+# 가족 추가 목록 요청
+def request_family_page(request):
+    user = User.objects.get(user_email=request.session.get('user_email'))
+    noti_list = Notification.objects.filter(user=user)
+    context = {
+        
+        'noti_list':noti_list
+    }
+    return render(request,'health_bot/family/request_family.html',context)
+
+def check_noti(request):
+    user = User.objects.get(user_email=request.session.get('user_email'))
+    noti_list = Notification.objects.filter(user=user)
+
+    return HttpResponse(json.dumps({'count':len(noti_list)}), content_type="application/json")
+
+#친구요청
+def request_family(request):
+    user_id = request.POST['user_id'] #유저가 입력한 텍스트
+    family_id = request.POST.get('family_id')
+    user = User.objects.get(user_email=request.session['user_email'])
+    family_user = User.objects.get(user_email=user_id)
+    print(family_id,"="*20)
+    Notification.objects.create(
+        user=family_user,
+        family_user=user,
+        family_id = int(family_id)
+    )
+    return HttpResponse("success")
+    
+
+
+
+        
+
 

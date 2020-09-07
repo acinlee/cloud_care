@@ -127,7 +127,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="family_title">
-                가족 생성<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='{% url 'health_bot:main_page' %}'">
+                가족 생성<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='/home'">
             </div>
             <div class="hr1"></div>
             <form action="{% url 'health_bot:family_create' %}" id="family_create_form" method="POST" enctype="multipart/form-data" style="width:100%; margin:0px; padding:0px;">

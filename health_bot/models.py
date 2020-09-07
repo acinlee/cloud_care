@@ -1,11 +1,6 @@
 from django.db import models
 
 # Create your models here.
-class Family(models.Model):
-    class meta:
-        db_table = '가족 구성'
-    family_name = models.CharField(max_length=10)    
-
 class User(models.Model):
     class meta:
         db_table = '사용자 속성'
@@ -15,7 +10,29 @@ class User(models.Model):
     user_sex = models.BooleanField(default=True)
     user_pw = models.CharField(null=False, max_length=15)
     user_photo = models.FileField(blank=True)
-    family_name = models.ForeignKey(Family, on_delete=models.DO_NOTHING, null=True, blank=True)
+
+class Notification(models.Model):
+    class meta:
+        db_table = '알림'
+    #로그인한 유저    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) 
+    #친구추가한 유저
+    family_user = models.ForeignKey(User,related_name='noti_family_user', on_delete=models.CASCADE, null=True, blank=True) 
+    family_id = models.IntegerField()
+
+
+class Family(models.Model):
+    class meta:
+        db_table = '가족 구성'
+    family_name = models.CharField(max_length=10)  
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True)
+
+class FamilyList(models.Model):
+    class meta:
+        db_table = '가족 목록'
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True)
+    family_user = models.ForeignKey(User, on_delete=models.DO_NOTHING,related_name="family_user",null=True, blank=True)
+    family = models.ForeignKey(Family, on_delete=models.DO_NOTHING, null=True, blank=True)      
 
 class Prescription(models.Model):
     class meta:

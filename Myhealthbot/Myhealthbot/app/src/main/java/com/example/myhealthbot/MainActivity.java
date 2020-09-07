@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -18,6 +19,8 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -40,10 +43,17 @@ public class MainActivity extends AppCompatActivity {
     public final static int FILECHOOSER_LOLLIPOP_REQ_CODE = 2002;
     private Uri cameraImageUri = null;
 
+    private final int prescription_done = 2300;
+
+
+    @SuppressLint("JavascriptInterface")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+
 
         mWebView = (WebView) findViewById(R.id.webView);
 
@@ -52,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
         mWebSettings = mWebView.getSettings();
         mWebSettings.setJavaScriptEnabled(true); //자바스크립트 허용
+        mWebView.addJavascriptInterface(new Android(), "android");
 
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
@@ -127,8 +138,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // 사용자의 웹뷰에 띄울 웹페이지 주소
-        mWebView.loadUrl("http://203.252.231.126/");
+      //  Log.d("url",url);
+        mWebView.loadUrl(RequestHttp.getUrl());
     }
+
 
     // 뒤로가기 구현
     @Override
@@ -247,6 +260,14 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 break;
+            case prescription_done:
+                Log.d("result","hello");
+                if(resultCode == RESULT_OK) {
+                    Intent intent = new Intent(getApplicationContext(), PrescriptionActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+                break;
             default:
 
                 break;
@@ -292,6 +313,16 @@ public class MainActivity extends AppCompatActivity {
         else
         {// 바로 카메라 실행..
             startActivityForResult(intentCamera, FILECHOOSER_LOLLIPOP_REQ_CODE);
+        }
+    }
+    class Android {
+        @JavascriptInterface
+        public void openCamera(String id){
+
+            Intent intent = new Intent(getApplicationContext(),CameraActivity.class);
+            intent.putExtra("user_id",id);
+            startActivityForResult(intent,prescription_done);
+
         }
     }
 }

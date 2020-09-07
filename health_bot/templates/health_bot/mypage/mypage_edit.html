@@ -178,7 +178,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="mypage_edit_title">
-                마이페이지 수정<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='{% url 'health_bot:main_page' %}'">
+                마이페이지 수정<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='/home'">
             </div>
             <div class="hr1"></div>
             <form action="{% url 'health_bot:user_edit' %}" id="edit_form" method="POST" enctype="multipart/form-data" style="width:100%; margin:0px; padding:0px;">

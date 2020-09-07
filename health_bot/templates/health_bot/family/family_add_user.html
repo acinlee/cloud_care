@@ -200,8 +200,9 @@
                     var addtrstart = "<tr>"
                     var addtrend = "</tr>"
                     var index = 1;
+                        console.log(response);
                     for(i=0; i<response.user_id_list.length; i++){
-                        var adduseridtd = "<td id='user_id"+index+"'>"+response.user_id_list[i]+"<button onclick='user_add(this.id)' id='user_add_button"+index+"' 'type='button' style='margin-left:15px;' class='btn btn-primary'>추가</button></td>";
+                        var adduseridtd = "<td id='user_id"+index+"'>"+response.user_id_list[i]+"<button onclick='user_add(this.id)' id='user_add_button"+index+"' 'type='button' style='margin-left:15px;' class='btn btn-primary' family-id="+response['family_id']+">추가</button></td>";
                         addtrstart += adduseridtd 
                         addtrstart += addtrend
                                             
@@ -223,12 +224,14 @@
         var index = button_id.substring(15);
         var user_id_ = $("#user_id"+index).text();
         var user_id = user_id_.replace("추가", "");
+       
         $.ajax({
 				type : "POST",
-				url : "{% url 'health_bot:userAdd' %}",
+				url : "{% url 'health_bot:request_family' %}",
 				data : {
 					'csrfmiddlewaretoken': '{{ csrf_token }}',
 					'user_id' : user_id,
+                    'family_id' : "{{request.session.family_name}}"
 				},
 				success : function(response)
 				{

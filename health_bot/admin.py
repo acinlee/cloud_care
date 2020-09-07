@@ -38,8 +38,10 @@ class Open_pregnat_ban_list(admin.ModelAdmin):
     list_display = ['ingr_code', 'ingr_kor_name', 'item_name']
     list_per_page = 30 
 
+admin.site.register(models.Notification)
 admin.site.register(models.User, User_attribute)
 admin.site.register(models.Family)
+admin.site.register(models.FamilyList)
 admin.site.register(models.Disease, Disease_list)
 admin.site.register(models.Pregnat_ban, Pregnat_ban_list)
 admin.site.register(models.Overlap_ban, Overlap_ban_list)

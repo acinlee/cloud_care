@@ -108,7 +108,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="mypage_title">
-                처방전 정보<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='{% url 'health_bot:main_page' %}'">
+                처방전 정보<img class="home_btn" src="{% static 'health_bot/img/home.png' %}" onclick="location.href='/home}'">
                 <div style="font-size:2vh;">
                     {{prescription.prescription_date|date:"Y년 m월 d일"}}
                 </div>
